@@ -13,8 +13,8 @@ class PermPacks: JavaPlugin() {
 
     override fun onEnable() {
         BinaryCache.initialize(this)
-        Options.initialize(this)
         FileMetaRepository.initialize(this)
+        Options.initialize(this)
 
         // Initialize upload service if enabled
         if (Options.fileUploadEnabled) {
