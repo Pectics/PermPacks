@@ -3,8 +3,7 @@ package me.pectics.paper.plugin.permpacks.upload
 import me.pectics.paper.plugin.permpacks.BinaryCache
 import me.pectics.paper.plugin.permpacks.data.FilePackItem
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
-import me.pectics.paper.plugin.permpacks.util.sha1
-import me.pectics.paper.plugin.permpacks.util.validate
+import me.pectics.paper.plugin.permpacks.util.SerializableURL
 import java.io.File
 import java.net.URL
 
@@ -19,11 +18,11 @@ internal interface UploadService {
 
         private lateinit var service: UploadService
 
-        private val uploaded = mutableMapOf<Sha1Hex, URL>()
+        private val uploaded = mutableMapOf<Sha1Hex, SerializableURL>()
 
         fun initialize(service: UploadService, context: Map<String, Any>) {
             this.service = service
-            BinaryCache.get<Map<Sha1Hex,URL>>("uploaded_packs")
+            BinaryCache.get<Map<Sha1Hex, SerializableURL>>("uploaded_packs")
                 ?.apply(uploaded::putAll)
             this.service.launch(context)
         }
