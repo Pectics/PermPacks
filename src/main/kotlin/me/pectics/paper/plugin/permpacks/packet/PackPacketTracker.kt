@@ -20,15 +20,15 @@ internal object PackPacketTracker {
     private val lastSeen = ConcurrentHashMap<String, Long>()
 
     private fun key(playerId: UUID, url: String?, hash: String?) =
-        "${playerId}|${url?:"<null>"}|${hash?:"<null>"}"
+        "${playerId}|${url ?: "<null>"}|${hash ?: "<null>"}"
 
     private fun mark(player: Player, url: String?, hash: String?) {
-        val k = key(player.uniqueId, url, hash)
-        counts.compute(k) { _, v ->
-            (v ?: AtomicInteger(0))
+        val key = key(player.uniqueId, url, hash)
+        counts.compute(key) { _, value ->
+            (value ?: AtomicInteger(0))
                 .apply { incrementAndGet() }
         }
-        lastSeen[k] = System.currentTimeMillis()
+        lastSeen[key] = System.currentTimeMillis()
     }
 
     fun mark(player: Player, item: PackItem) {
@@ -42,14 +42,14 @@ internal object PackPacketTracker {
      * 检查是否被标记，若被标记则清除
      */
     fun check(player: Player, url: String?, hash: String?): Boolean {
-        val k = key(player.uniqueId, url, hash)
-        val ai = counts[k] ?: return false
-        val left = ai.decrementAndGet()
+        val key = key(player.uniqueId, url, hash)
+        val counter = counts[key] ?: return false
+        val left = counter.decrementAndGet()
         if (left <= 0) {
-            counts.remove(k)
-            lastSeen.remove(k)
+            counts.remove(key)
+            lastSeen.remove(key)
         } else {
-            lastSeen[k] = System.currentTimeMillis()
+            lastSeen[key] = System.currentTimeMillis()
         }
         return true
     }
@@ -58,15 +58,14 @@ internal object PackPacketTracker {
     fun startCleanupTask(plugin: JavaPlugin) {
         plugin.server.scheduler.runTaskTimerAsynchronously(plugin, Runnable {
             val now = System.currentTimeMillis()
-            val it = lastSeen.entries.iterator()
-            while (it.hasNext()) {
-                val e = it.next()
-                if (now - e.value > CLEANUP_THRESHOLD_MS) {
-                    counts.remove(e.key)
-                    it.remove()
+            val iterator = lastSeen.entries.iterator()
+            while (iterator.hasNext()) {
+                val entry = iterator.next()
+                if (now - entry.value > CLEANUP_THRESHOLD_MS) {
+                    counts.remove(entry.key)
+                    iterator.remove()
                 }
             }
         }, 20L * 5, 20L * 5)
     }
-
 }

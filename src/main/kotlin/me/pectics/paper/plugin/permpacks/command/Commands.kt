@@ -16,9 +16,10 @@ import me.pectics.paper.plugin.permpacks.data.UrlPackItem
 import me.pectics.paper.plugin.permpacks.pack.Packer
 import org.bukkit.entity.Player
 
-private inline fun <reified T, reified I: AbstractArgument<T,I,A,S>, reified A: AbstractArgument<*,*,A,S>, reified S>
-        AbstractArgument<T,I,A,S>.suggestions(suggestions: Collection<String>) =
-    replaceSuggestions(ArgumentSuggestions.strings(suggestions))
+private inline fun <reified T, reified I : AbstractArgument<T, I, A, S>, reified A : AbstractArgument<*, *, A, S>, reified S>
+    AbstractArgument<T, I, A, S>.withStaticSuggestions(values: Collection<String>) {
+    replaceSuggestions(ArgumentSuggestions.strings(values))
+}
 
 internal object Commands {
 
@@ -47,7 +48,7 @@ internal object Commands {
 
             subcommand("info") {
                 stringArgument("PACK_ID") {
-                    suggestions(Options.packs.map(Pack::id))
+                    withStaticSuggestions(Options.packs.map(Pack::id))
                 }
                 anyExecutor { sender, args ->
                     val packId = args["PACK_ID"] as String
@@ -90,12 +91,10 @@ internal object Commands {
                         }
                 }
             }
-
         }
     }
 
     fun unregister() {
         CommandAPI.unregister("permpacks")
     }
-
 }

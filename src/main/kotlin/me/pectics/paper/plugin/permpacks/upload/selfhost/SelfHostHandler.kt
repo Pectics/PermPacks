@@ -5,7 +5,7 @@ import com.sun.net.httpserver.HttpHandler
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 
-internal object SelfHostHandler: HttpHandler {
+internal object SelfHostHandler : HttpHandler {
 
     override fun handle(ex: HttpExchange) {
         // Method filter, GET only
