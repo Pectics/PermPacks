@@ -17,8 +17,9 @@ internal interface UploadService {
     companion object {
 
         private lateinit var service: UploadService
-
         private val uploaded = mutableMapOf<Sha1Hex, SerializableURL>()
+
+        fun available() = ::service.isInitialized
 
         fun initialize(service: UploadService, context: Map<String, Any>) {
             this.service = service
@@ -28,8 +29,7 @@ internal interface UploadService {
         }
 
         fun shutdown() {
-            if (::service.isInitialized)
-                service.shutdown()
+            if (available()) service.shutdown()
             uploaded.clear()
         }
 

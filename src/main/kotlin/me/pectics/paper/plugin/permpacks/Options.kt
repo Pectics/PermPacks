@@ -6,6 +6,7 @@ import me.pectics.paper.plugin.permpacks.data.UrlPackItem
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.pack.Packer
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
+import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.util.logger
 import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validate
@@ -61,6 +62,8 @@ internal class Options private constructor(private val plugin: PermPacks) {
         FileMetaRepository.clear()
         val packsConfig = packsWrapper.config
 
+        var uploadServiceChecked = false
+
         for (id in packsConfig.getKeys(false)) {
             val section = packsConfig.getConfigurationSection(id)!! // Safe
 
@@ -103,12 +106,24 @@ internal class Options private constructor(private val plugin: PermPacks) {
                             UrlPackItem(url, hash)
                         }
                         item["file"] is String -> {
+                            // Upload service availability check
+                            if (!UploadService.available()) {
+                                // Check only once
+                                if (!uploadServiceChecked) {
+                                    log.warning("Pack \"$id\" requires file upload service, but it's not configured properly, all items with local files will be skipped.")
+                                    uploadServiceChecked = true
+                                }
+                                return@mapIndexedNotNull null
+                            }
+
+                            // Validate file
                             val file = File(item["file"] as String)
                                 .runCatching { validate(); this }
                                 .getOrElse {
                                     log.warning("Items[$i] in pack \"$id\" refers to an invalid file, skipped.")
                                     return@mapIndexedNotNull null
                                 }
+
                             // If hash is provided, check it
                             val hash0 = file.sha1()
                             if (hash != null && hash != hash0) {
