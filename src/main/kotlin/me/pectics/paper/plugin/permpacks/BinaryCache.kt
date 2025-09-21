@@ -112,7 +112,7 @@ internal class BinaryCache private constructor(plugin: PermPacks) {
         inline operator fun <reified T> get(key: String): T? =
             instance.map[key]?.let(Json::decodeFromString)
 
-        operator fun set(key: String, value: Any) {
+        inline operator fun <reified T> set(key: String, value: T) {
             instance.map[key] = Json.encodeToString(value)
             instance.scheduleWrite()
         }
