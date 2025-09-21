@@ -31,6 +31,8 @@ class PermPacks: JavaPlugin() {
                 ?: logger.warning("File upload service is not specified.")
         }
 
+        Options.loadPacks()
+
         // Hook ProtocolLib if available
         server.pluginManager.getPlugin("ProtocolLib")
             ?.let {
