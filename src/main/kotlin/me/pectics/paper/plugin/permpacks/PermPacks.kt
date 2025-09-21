@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin
 class PermPacks: JavaPlugin() {
 
     override fun onEnable() {
+        // Initialize components
         BinaryCache.initialize(this)
         Options.initialize(this)
         FileMetaRepository.initialize(this)
@@ -31,6 +32,7 @@ class PermPacks: JavaPlugin() {
                 ?: logger.warning("File upload service is not specified.")
         }
 
+        // Load packs
         Options.loadPacks()
 
         // Hook ProtocolLib if available
