@@ -14,6 +14,8 @@ internal interface UploadService {
 
     fun upload(file: File): URL
 
+    fun isCachedUrlValid(item: FilePackItem, cached: SerializableURL): Boolean = true
+
     companion object {
 
         private lateinit var service: UploadService
@@ -33,14 +35,21 @@ internal interface UploadService {
             uploaded.clear()
         }
 
+        fun clearCache() {
+            uploaded.clear()
+            BinaryCache.remove("uploaded_packs")
+        }
+
         fun urlOf(item: FilePackItem): URL {
             val hash = item.hash
-            return uploaded.getOrPut(hash) {
-                val url = service.upload(item.file)
-                uploaded[hash] = url
-                BinaryCache["uploaded_packs"] = uploaded
-                return@getOrPut url
-            }
+            val cached = uploaded[hash]
+            if (cached != null && service.isCachedUrlValid(item, cached))
+                return cached
+
+            val url = service.upload(item.file)
+            uploaded[hash] = url
+            BinaryCache["uploaded_packs"] = uploaded
+            return url
         }
 
     }

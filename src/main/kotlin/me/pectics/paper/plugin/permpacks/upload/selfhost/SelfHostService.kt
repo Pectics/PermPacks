@@ -1,8 +1,10 @@
 package me.pectics.paper.plugin.permpacks.upload.selfhost
 
 import com.sun.net.httpserver.HttpServer
+import me.pectics.paper.plugin.permpacks.data.FilePackItem
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 import me.pectics.paper.plugin.permpacks.upload.UploadService
+import me.pectics.paper.plugin.permpacks.util.SerializableURL
 import me.pectics.paper.plugin.permpacks.util.cap
 import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validate
@@ -53,6 +55,10 @@ object SelfHostService: UploadService {
             FileMetaRepository.push(file)
         val url = urlFormat.format(FileMetaRepository[hash]!!.repoFile.name)
         return URI.create(url).toURL()
+    }
+
+    override fun isCachedUrlValid(item: FilePackItem, cached: SerializableURL): Boolean {
+        return item.hash in FileMetaRepository
     }
 
 }

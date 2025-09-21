@@ -57,6 +57,7 @@ internal class Options private constructor(private val plugin: PermPacks) {
 
     fun loadPacks() {
         _packs.clear()
+        UploadService.clearCache()
         FileMetaRepository.clear()
         val packsConfig = packsWrapper.config
 
