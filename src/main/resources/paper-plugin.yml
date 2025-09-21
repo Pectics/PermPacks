@@ -1,0 +1,11 @@
+name: PermPacks
+version: '0.1'
+description: A plugin that gives players permission-based resource packs.
+main: me.pectics.paper.plugin.permpacks.PermPacks
+api-version: '1.21'
+authors: [ Pectics ]
+dependencies:
+  server:
+    ProtocolLib:
+      load: BEFORE
+      required: false

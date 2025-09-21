@@ -1,0 +1,26 @@
+# Template For packs.yml:
+#
+# _pack_id_:
+#   permission: _pack_permission_node_
+#   priority: _pack_priority_
+#   items:
+#     - url: _pack_url_
+#       hash: _pack_hash_
+#     - ...more
+#
+# 优先级规则：
+# 1. 优先级默认值为 0，允许负数；
+# 2. 资源包按照优先级升序加载，高优先级的资源包在客户端中将覆盖低优先级的资源包；
+# 3. 相同优先级的资源包、items 中指定的包文件，将按照在配置文件中出现的顺序加载；
+#    这意味着在同一优先级下，后出现的资源包会覆盖先出现的资源包。
+
+test: # Pack ID
+  permission: permpacks.pack.test
+  priority: 1
+  items:
+    - url: https://example.com/resourcepack.zip
+      hash: d41d8cd98f00b204e9800998ecf8427e
+    - url: https://example.com/anotherpack.zip
+      hash: 0cc175b9c0f1b6a831c399d3f3f0f2
+    - file: plugins/SomePlugin/pack.zip
+      hash: 900150983cd24fb0d6963f7d28e17f72

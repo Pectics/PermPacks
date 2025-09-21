@@ -1,0 +1,7 @@
+block_other_packs: false
+
+file_upload:
+  enabled: false
+  service: self_host # amazon_s3, self_host
+  self_host:
+
