@@ -17,6 +17,7 @@ internal object SelfHostHandler: HttpHandler {
 
         // Path filter, /{hash} only
         val hash = ex.requestURI.path
+            ?.removePrefix("/")
             ?.let(Sha1Hex::of)
             ?.getOrNull()
             ?: run {
