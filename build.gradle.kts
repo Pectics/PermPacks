@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.pectics.paper.plugin"
-version = "0.1"
+version = "0.1.1"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
