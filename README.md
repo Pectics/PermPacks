@@ -1,4 +1,5 @@
-# PermPacks
+# <p align="center"><img src="assets/logo.png" width="180"></p>
+# <p align="center"><b>PermPacks</b></p>
 
 通过权限节点为玩家自动分发多层资源包栈的 Paper 插件，并为本地资源包提供开箱即用的自托管分发服务。
 
