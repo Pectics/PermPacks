@@ -9,7 +9,7 @@ import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.selfhost.SelfHostService
 import org.bukkit.plugin.java.JavaPlugin
 
-class PermPacks: JavaPlugin() {
+class PermPacks : JavaPlugin() {
 
     override fun onEnable() {
         // Initialize components

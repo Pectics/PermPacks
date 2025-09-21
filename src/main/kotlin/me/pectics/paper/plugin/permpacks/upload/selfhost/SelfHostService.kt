@@ -13,7 +13,7 @@ import java.net.InetSocketAddress
 import java.net.URI
 import java.net.URL
 
-object SelfHostService: UploadService {
+object SelfHostService : UploadService {
 
     private val server = HttpServer.create()
 
@@ -27,12 +27,12 @@ object SelfHostService: UploadService {
         server.executor = null
     }
 
-    private inline fun <reified T> Map<String, Any>.parseTo(key: String): T {
-        return when (val value = this[key]) {
-            is T -> value
-            null -> throw IllegalArgumentException("${key.cap()} is not specified.")
-            else -> throw IllegalArgumentException("${key.cap()} must be ${T::class.simpleName}, but got: ${value::class.simpleName}")
-        }
+    private inline fun <reified T> Map<String, Any>.parseTo(key: String): T = when (val value = this[key]) {
+        is T -> value
+        null -> throw IllegalArgumentException("${key.cap()} is not specified.")
+        else -> throw IllegalArgumentException(
+            "${key.cap()} must be ${T::class.simpleName}, but got: ${value::class.simpleName}"
+        )
     }
 
     @Suppress("HttpUrlsUsage")

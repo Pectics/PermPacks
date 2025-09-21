@@ -26,17 +26,19 @@ internal class FileMetaRepository(plugin: PermPacks) {
         }
 
         operator fun get(hash: Sha1Hex) = instance.metas[hash]
-        operator fun set(hash: Sha1Hex, meta: FileMeta) = instance.metas.set(hash, meta)
+        operator fun set(hash: Sha1Hex, meta: FileMeta) {
+            instance.metas[hash] = meta
+        }
         operator fun contains(hash: Sha1Hex) = hash in instance.metas
 
         fun push(file: File) {
-            instance.apply {
-                val hash = file.sha1()
-                val repoFile = repo.resolve(hash.value)
-                if (!repoFile.exists())
-                    file.copyTo(repoFile, overwrite = true)
-                metas[hash] = FileMeta(file.name, repoFile, file.length())
+            val repository = instance
+            val hash = file.sha1()
+            val repoFile = repository.repo.resolve(hash.value)
+            if (!repoFile.exists()) {
+                file.copyTo(repoFile, overwrite = true)
             }
+            repository.metas[hash] = FileMeta(file.name, repoFile, file.length())
         }
 
         fun clear() {

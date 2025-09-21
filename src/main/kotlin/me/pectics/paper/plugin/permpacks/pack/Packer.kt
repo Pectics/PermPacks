@@ -23,18 +23,17 @@ object Packer {
     fun getDistributed(player: Player) = distributed[player.uniqueId]
 
     fun distribute(player: Player) {
-        val request = packs
-            .filter { player.hasPermission(it.permission) }
-            .ifEmpty { return }
-            .also { distributed[player.uniqueId] = it }
-            .apply { this
-                .flatMap { it.items }
-                .forEach { PackPacketTracker.mark(player, it) }
-            }
-            .toRequest()
+        val eligiblePacks = packs.filter { player.hasPermission(it.permission) }
+        if (eligiblePacks.isEmpty()) return
+
+        distributed[player.uniqueId] = eligiblePacks
+        eligiblePacks
+            .flatMap(Pack::items)
+            .forEach { PackPacketTracker.mark(player, it) }
+
+        val request = eligiblePacks.toRequest()
         player.sendResourcePacks(request)
     }
 
     fun distribute() = Bukkit.getOnlinePlayers().forEach(::distribute)
-
 }

@@ -6,4 +6,4 @@ import java.io.File
 data class FilePackItem(
     val file: File,
     val hash: Sha1Hex,
-): PackItem()
+) : PackItem()
