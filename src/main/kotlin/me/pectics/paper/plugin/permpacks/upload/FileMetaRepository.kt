@@ -41,7 +41,7 @@ internal class FileMetaRepository(plugin: PermPacks) {
 
         fun clear() {
             instance.metas.clear()
-            instance.repo.listFiles().forEach(File::deleteRecursively)
+            instance.repo.listFiles()?.forEach(File::deleteRecursively)
         }
 
     }
