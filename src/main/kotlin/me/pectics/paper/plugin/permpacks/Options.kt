@@ -53,11 +53,9 @@ internal class Options private constructor(private val plugin: PermPacks) {
     init {
         // Extract and load configs
         wrappers.forEach(FileConfigWrapper::load)
-        // Read packs
-        readPacks()
     }
 
-    private fun readPacks() {
+    fun loadPacks() {
         _packs.clear()
         FileMetaRepository.clear()
         val packsConfig = packsWrapper.config
@@ -170,9 +168,11 @@ internal class Options private constructor(private val plugin: PermPacks) {
             instance = Options(plugin)
         }
 
+        fun loadPacks() = instance.loadPacks()
+
         fun reload() {
             instance.wrappers.forEach(FileConfigWrapper::reload)
-            instance.readPacks()
+            instance.loadPacks()
         }
 
     }
