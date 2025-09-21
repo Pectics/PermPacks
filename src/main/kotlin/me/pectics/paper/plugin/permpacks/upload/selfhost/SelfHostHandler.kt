@@ -2,6 +2,7 @@ package me.pectics.paper.plugin.permpacks.upload.selfhost
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
+import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 
 internal object SelfHostHandler: HttpHandler {
@@ -16,13 +17,8 @@ internal object SelfHostHandler: HttpHandler {
 
         // Path filter, /{hash} only
         val hash = ex.requestURI.path
-            ?.removePrefix("/")
-            // Blank filter
-            ?.takeIf(String::isNotBlank)
-            // Slashes filter
-            ?.takeIf { '/' !in it }
-            // Hash format filter
-            ?.takeIf { it.matches(Regex("^[a-f0-9]{40}$")) }
+            ?.let(Sha1Hex::of)
+            ?.getOrNull()
             ?: run {
                 ex.sendResponseHeaders(404, -1)
                 ex.close()
