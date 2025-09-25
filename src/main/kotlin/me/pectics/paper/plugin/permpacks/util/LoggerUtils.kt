@@ -7,6 +7,9 @@ import java.util.logging.Logger
 internal inline fun <reified T> logger() = PermPacksLogger.of(T::class.let { it.simpleName ?: it.java.simpleName })
 internal fun logger(who: String) = PermPacksLogger.of(who)
 
+internal fun Logger.warning(msg: String?, thrown: Throwable) = log(Level.WARNING, msg, thrown)
+internal fun Logger.error(msg: String?, thrown: Throwable) = log(Level.SEVERE, msg, thrown)
+
 internal class PermPacksLogger private constructor(who: String?) : Logger(PermPacks::class.simpleName, null) {
 
     init { useParentHandlers = true }

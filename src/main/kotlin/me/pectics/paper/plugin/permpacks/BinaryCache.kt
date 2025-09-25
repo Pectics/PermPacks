@@ -62,7 +62,7 @@ internal class BinaryCache private constructor(plugin: PermPacks) {
             map.clear()
             output { writeInt(0) }
         } catch (e: Throwable) {
-            log.log(Level.WARNING, "Failed to load cache from disk", e)
+            log.warning("Failed to load cache from disk", e)
         }
     }
 
