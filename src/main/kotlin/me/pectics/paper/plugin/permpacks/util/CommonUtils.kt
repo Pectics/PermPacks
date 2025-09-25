@@ -9,6 +9,8 @@ fun File.validate() {
     throw IllegalArgumentException("Invalid file: $path")
 }
 
+fun File.validated() = apply(File::validate)
+
 fun File.sha1(): Sha1Hex {
     val sha1 = MessageDigest.getInstance("SHA-1")
     inputStream().use { fis ->
