@@ -4,7 +4,6 @@ import me.pectics.paper.plugin.permpacks.BinaryCache
 import me.pectics.paper.plugin.permpacks.data.FilePackItem
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.util.SerializableURI
-import me.pectics.paper.plugin.permpacks.util.cap
 import java.io.File
 import java.net.URI
 
@@ -18,7 +17,7 @@ internal abstract class UploadService {
     /**
      * Launch the service with the given context.
      */
-    abstract fun launch(context: Map<String, Any>)
+    abstract fun launch(context: UploadServiceContext)
 
     /**
      * Shutdown the service.
@@ -35,15 +34,6 @@ internal abstract class UploadService {
      */
     open fun validate(item: FilePackItem, cached: SerializableURI): Boolean = true
 
-    protected inline fun <reified T> Map<String, Any>.parseTo(key: String): T =
-        when (val value = this[key]) {
-            is T -> value
-            null -> throw IllegalArgumentException("${key.cap()} is not specified.")
-            else -> throw IllegalArgumentException(
-                "${key.cap()} must be ${T::class.simpleName}, but got: ${value::class.simpleName}"
-            )
-        }
-
     companion object {
 
         private lateinit var service: UploadService
@@ -51,7 +41,7 @@ internal abstract class UploadService {
 
         fun available() = ::service.isInitialized
 
-        fun initialize(service: UploadService, context: Map<String, Any>) {
+        fun initialize(service: UploadService, context: UploadServiceContext) {
             BinaryCache.get<Map<Sha1Hex, SerializableURI>>("uploaded_packs")
                 ?.apply(uploaded::putAll)
             service.launch(context)

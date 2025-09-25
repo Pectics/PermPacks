@@ -6,6 +6,7 @@ import me.pectics.paper.plugin.permpacks.packet.PackBlocker
 import me.pectics.paper.plugin.permpacks.packet.PackPacketTracker
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 import me.pectics.paper.plugin.permpacks.upload.UploadService
+import me.pectics.paper.plugin.permpacks.upload.UploadServiceContext
 import me.pectics.paper.plugin.permpacks.upload.selfhost.SelfHostService
 import me.pectics.paper.plugin.permpacks.util.warning
 import org.bukkit.plugin.java.JavaPlugin
@@ -19,7 +20,9 @@ class PermPacks : JavaPlugin() {
             return
         }
         // Catching service exceptions
-        val context = Options.fileUploadContext ?: emptyMap()
+        val context = Options.fileUploadContext
+            ?.let(UploadServiceContext::of)
+            ?: UploadServiceContext.EMPTY
         runCatching {
             when (service) {
                 in SelfHostService.names -> UploadService.initialize(SelfHostService, context)
