@@ -21,8 +21,16 @@ internal class PermPacksLogger private constructor(who: String?) : Logger(PermPa
         super.warning(prefix + msg)
     }
 
+    fun warning(msg: String?, thrown: Throwable) {
+        super.log(Level.WARNING, prefix + msg, thrown)
+    }
+
     override fun severe(msg: String?) {
         super.severe(prefix + msg)
+    }
+
+    fun error(msg: String?, thrown: Throwable) {
+        super.log(Level.SEVERE, prefix + msg, thrown)
     }
 
     override fun fine(msg: String?) {
@@ -39,14 +47,6 @@ internal class PermPacksLogger private constructor(who: String?) : Logger(PermPa
 
     override fun config(msg: String?) {
         super.config(prefix + msg)
-    }
-
-    override fun log(level: Level?, msg: String?) {
-        super.log(level, prefix + msg)
-    }
-
-    override fun log(level: Level?, msg: String?, thrown: Throwable?) {
-        super.log(level, prefix + msg, thrown)
     }
 
     companion object {

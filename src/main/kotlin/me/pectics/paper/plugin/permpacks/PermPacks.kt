@@ -7,9 +7,29 @@ import me.pectics.paper.plugin.permpacks.packet.PackPacketTracker
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.selfhost.SelfHostService
+import me.pectics.paper.plugin.permpacks.util.warning
 import org.bukkit.plugin.java.JavaPlugin
 
 class PermPacks : JavaPlugin() {
+
+    fun uploadServiceInit() {
+        if (!Options.fileUploadEnabled) return
+        val service = Options.fileUploadService?.lowercase() ?: run {
+            logger.warning("File upload service is not specified.")
+            return
+        }
+        // Catching service exceptions
+        val context = Options.fileUploadContext ?: emptyMap()
+        runCatching {
+            when (service) {
+                in SelfHostService.names -> UploadService.initialize(SelfHostService, context)
+                // TODO amazon_s3
+                else -> logger.warning("Unknown file upload service: $service")
+            }
+        }.onFailure {
+            logger.warning("Failed to initialize file upload service.", it)
+        }
+    }
 
     override fun onEnable() {
         // Initialize components
@@ -17,20 +37,8 @@ class PermPacks : JavaPlugin() {
         FileMetaRepository.initialize(this)
         Options.initialize(this)
 
-        // Initialize upload service if enabled
-        if (Options.fileUploadEnabled) {
-            Options.fileUploadService
-                ?.let(String::lowercase)
-                ?.apply {
-                    val context = Options.fileUploadContext ?: emptyMap()
-                    when (this) {
-                        "self_host" -> UploadService.initialize(SelfHostService, context)
-                        // TODO amazon_s3
-                        else -> logger.warning("Unknown file upload service: $this")
-                    }
-                }
-                ?: logger.warning("File upload service is not specified.")
-        }
+        // Initialize upload service
+        uploadServiceInit()
 
         // Load packs
         Options.loadPacks()

@@ -13,5 +13,4 @@ value class Sha1Hex private constructor(val value: String) {
             return Result.success(Sha1Hex(hash.lowercase()))
         }
     }
-
 }
