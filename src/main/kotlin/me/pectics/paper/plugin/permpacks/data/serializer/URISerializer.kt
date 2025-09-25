@@ -9,19 +9,18 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.net.URI
-import java.net.URL
 
 @OptIn(ExperimentalSerializationApi::class)
-@Serializer(forClass = URL::class)
-object URLSerializer : KSerializer<URL> {
+@Serializer(forClass = URI::class)
+object URISerializer : KSerializer<URI> {
 
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("URL", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("URI", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: URL) =
-        encoder.encodeString(value.toExternalForm())
+    override fun serialize(encoder: Encoder, value: URI) =
+        encoder.encodeString(value.toString())
 
-    override fun deserialize(decoder: Decoder): URL =
-        URI.create(decoder.decodeString()).toURL()
+    override fun deserialize(decoder: Decoder): URI =
+        URI.create(decoder.decodeString())
 
 }

@@ -1,13 +1,13 @@
 package me.pectics.paper.plugin.permpacks.util
 
 import kotlinx.serialization.Serializable
-import me.pectics.paper.plugin.permpacks.data.serializer.URLSerializer
-import java.net.URL
+import me.pectics.paper.plugin.permpacks.data.serializer.URISerializer
+import java.net.URI
 
 @Target(AnnotationTarget.TYPEALIAS)
 @Retention(AnnotationRetention.RUNTIME)
-@Serializable(with = URLSerializer::class)
+@Serializable(with = URISerializer::class)
 private annotation class URLSerializability
 
 @URLSerializability
-typealias SerializableURL = URL
+typealias SerializableURI = URI
