@@ -7,7 +7,6 @@ import me.pectics.paper.plugin.permpacks.domain.value.Port
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.UploadServiceContext
-import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validate
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
@@ -59,7 +58,7 @@ internal object SelfHostService : UploadService {
         return URI.create(url)
     }
 
-    override fun validate(item: FilePackItem, cached: SerializableURI): Boolean {
+    override fun validate(item: FilePackItem, cached: URI): Boolean {
         return item.hash in FileMetaRepository
     }
 

@@ -16,7 +16,6 @@ import me.pectics.paper.plugin.permpacks.util.validate
 import java.io.File
 import java.net.URI
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
-import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 
@@ -102,7 +101,7 @@ internal object S3Service : UploadService {
         return URI.create(url)
     }
 
-    override fun validate(item: FilePackItem, cached: SerializableURI): Boolean {
+    override fun validate(item: FilePackItem, cached: URI): Boolean {
         val expectedUrl = urlFormat.format(item.hash.value)
         return cached.toString() == expectedUrl
     }
