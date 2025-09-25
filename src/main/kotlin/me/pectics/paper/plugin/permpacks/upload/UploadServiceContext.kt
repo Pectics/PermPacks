@@ -10,9 +10,14 @@ internal class UploadServiceContext private constructor(private val map: Map<Str
         }
     }
 
-    fun node(key: String): UploadServiceContextNode {
+    fun required(key: String): UploadServiceContextNode {
         val value = this[key]
-            ?: throw IllegalArgumentException("$key is not specified.")
+            ?: throw IllegalArgumentException("Key not found in upload service context: $key")
+        return UploadServiceContextNode(key, value)
+    }
+
+    fun optional(key: String): UploadServiceContextNode? {
+        val value = this[key] ?: return null
         return UploadServiceContextNode(key, value)
     }
 
