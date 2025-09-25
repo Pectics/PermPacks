@@ -20,7 +20,7 @@ import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 
-internal object S3Service : UploadService() {
+internal object S3Service : UploadService {
 
     override val names = listOf("amazon_s3", "amazons3", "s3")
 

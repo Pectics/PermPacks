@@ -8,37 +8,37 @@ import java.io.File
 import java.net.URI
 import java.util.concurrent.ConcurrentHashMap
 
-internal abstract class UploadService {
+internal interface UploadService {
 
     /**
      * Names to identify the service.
      */
-    abstract val names: List<String>
+    val names: List<String>
 
     /**
      * Launch the service with the given context.
      */
-    abstract fun launch(context: UploadServiceContext)
+    fun launch(context: UploadServiceContext)
 
     /**
      * Shutdown the service.
      */
-    abstract fun shutdown()
+    fun shutdown()
 
     /**
      * Upload the given file and return its URI.
      */
-    abstract fun upload(file: File): URI
+    fun upload(file: File): URI
 
     /**
      * Validate the cached URI for the given item.
      */
-    abstract fun validate(item: FilePackItem, cached: SerializableURI): Boolean
+    fun validate(item: FilePackItem, cached: SerializableURI): Boolean
 
     /**
      * Cleanup remote storage based on a set of allowed hashes.
      */
-    abstract fun cleanup(retain: Set<Sha1Hex>)
+    fun cleanup(retain: Set<Sha1Hex>)
 
     companion object {
 

@@ -15,7 +15,7 @@ import java.io.File
 import java.net.InetSocketAddress
 import java.net.URI
 
-internal object SelfHostService : UploadService() {
+internal object SelfHostService : UploadService {
 
     override val names = listOf("selfhost", "self-host", "self_host")
 
