@@ -30,3 +30,8 @@ fun String.cap(): String {
     if (isEmpty()) return this
     return replaceFirstChar { if (it.isLowerCase()) it.titlecase(getDefault()) else it.toString() }
 }
+
+fun String.removePrefixIgnoreCase(prefix: String) =
+    if (startsWith(prefix, ignoreCase = true))
+        substring(prefix.length)
+    else this
