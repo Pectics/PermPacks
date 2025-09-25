@@ -4,48 +4,72 @@ import me.pectics.paper.plugin.permpacks.PermPacks
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.util.sha1
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
-internal class FileMetaRepository(plugin: PermPacks) {
+internal object FileMetaRepository {
 
-    private val repo = File(plugin.dataFolder, ".filerepo")
+    private lateinit var repo: File
+    private val metas = ConcurrentHashMap<Sha1Hex, FileMeta>()
 
-    private val metas = mutableMapOf<Sha1Hex, FileMeta>()
-
-    init {
+    fun initialize(plugin: PermPacks) {
+        repo = File(plugin.dataFolder, ".filerepo")
         require(repo.isDirectory || repo.mkdirs()) {
             "Could not create file repository directory: ${repo.absolutePath}"
         }
+        bootstrapFromDisk()
     }
 
-    companion object {
+    private fun bootstrapFromDisk() {
+        repo.listFiles()
+            ?.asSequence()
+            ?.filter(File::isFile)
+            ?.forEach { file ->
+                val name = file.name
+                val isSha1 = name.length == 40 && name.all { it.isDigit() || it in 'a'..'f' }
+                if (isSha1) {
+                    val hash = Sha1Hex.of(name).getOrElse { return@forEach }
+                    metas[hash] = FileMeta(name, file, file.length())
+                }
+            }
+    }
 
-        private lateinit var instance: FileMetaRepository
+    operator fun get(hash: Sha1Hex) = metas[hash]
 
-        fun initialize(plugin: PermPacks) {
-            instance = FileMetaRepository(plugin)
-        }
+    operator fun set(hash: Sha1Hex, meta: FileMeta) {
+        metas[hash] = meta
+    }
 
-        operator fun get(hash: Sha1Hex) = instance.metas[hash]
-        operator fun set(hash: Sha1Hex, meta: FileMeta) {
-            instance.metas[hash] = meta
-        }
-        operator fun contains(hash: Sha1Hex) = hash in instance.metas
+    operator fun contains(hash: Sha1Hex) = hash in metas.keys
 
-        fun push(file: File) {
-            val repository = instance
-            val hash = file.sha1()
-            val repoFile = repository.repo.resolve(hash.value)
+    fun push(file: File) {
+        val hash = file.sha1()
+        val repoFile = repo.resolve(hash.value)
+        synchronized(this) {
             if (!repoFile.exists()) {
                 file.copyTo(repoFile, overwrite = true)
             }
-            repository.metas[hash] = FileMeta(file.name, repoFile, file.length())
+            metas[hash] = FileMeta(file.name, repoFile, file.length())
         }
-
-        fun clear() {
-            instance.metas.clear()
-            instance.repo.listFiles()?.forEach(File::deleteRecursively)
-        }
-
     }
 
+    fun cleanup(retain: Set<Sha1Hex>) {
+        val retainStrings = retain.map { it.value }.toSet()
+
+        // delete files on disk not retained
+        repo.listFiles()
+            ?.filter { it.isFile }
+            ?.forEach { file ->
+                val name = file.name
+                val looksLikeSha1 = name.length == 40 && name.all { it.isDigit() || it in 'a'..'f' }
+                if (looksLikeSha1 && name !in retainStrings) {
+                    file.delete()
+                }
+            }
+
+        // rebuild metas map to kept ones only
+        metas.keys
+            .filter { it.value !in retainStrings }
+            .toList()
+            .forEach { metas.remove(it) }
+    }
 }
