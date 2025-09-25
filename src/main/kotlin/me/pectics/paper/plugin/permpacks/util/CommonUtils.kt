@@ -3,7 +3,6 @@ package me.pectics.paper.plugin.permpacks.util
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import java.io.File
 import java.security.MessageDigest
-import java.util.Locale.getDefault
 
 fun File.validate() {
     if (exists() && isFile && canRead()) return
@@ -24,11 +23,6 @@ fun File.sha1(): Sha1Hex {
         .joinToString("", transform = "%02x"::format)
         .let(Sha1Hex::of)
         .getOrThrow()
-}
-
-fun String.cap(): String {
-    if (isEmpty()) return this
-    return replaceFirstChar { if (it.isLowerCase()) it.titlecase(getDefault()) else it.toString() }
 }
 
 fun String.removePrefixIgnoreCase(prefix: String) =
