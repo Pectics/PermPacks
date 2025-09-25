@@ -6,6 +6,7 @@ import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import java.io.File
 import java.net.URI
+import java.util.concurrent.ConcurrentHashMap
 
 internal abstract class UploadService {
 
@@ -43,7 +44,8 @@ internal abstract class UploadService {
     companion object {
 
         private lateinit var service: UploadService
-        private val uploaded = mutableMapOf<Sha1Hex, SerializableURI>()
+        private val uploaded = ConcurrentHashMap<Sha1Hex, SerializableURI>()
+        private val locks = ConcurrentHashMap<Sha1Hex, Any>()
 
         fun available() = ::service.isInitialized
 
@@ -69,10 +71,17 @@ internal abstract class UploadService {
             val cached = uploaded[hash]
             if (cached != null && service.validate(item, cached))
                 return cached
-            val url = service.upload(item.file)
-            uploaded[hash] = url
-            BinaryCache["uploaded_packs"] = uploaded
-            return url
+
+            val lock = locks.computeIfAbsent(hash) { Any() }
+            synchronized(lock) {
+                val secondCheck = uploaded[hash]
+                if (secondCheck != null && service.validate(item, secondCheck))
+                    return secondCheck
+                val url = service.upload(item.file)
+                uploaded[hash] = url
+                BinaryCache["uploaded_packs"] = uploaded
+                return url
+            }
         }
 
         fun cleanup(retain: Set<Sha1Hex>) {
