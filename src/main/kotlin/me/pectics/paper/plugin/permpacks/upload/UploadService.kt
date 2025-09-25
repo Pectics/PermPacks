@@ -34,6 +34,12 @@ internal abstract class UploadService {
      */
     open fun validate(item: FilePackItem, cached: SerializableURI): Boolean = true
 
+    /**
+     * Cleanup remote storage based on a set of allowed hashes.
+     * Default no-op.
+     */
+    open fun cleanup(retain: Set<Sha1Hex>) {}
+
     companion object {
 
         private lateinit var service: UploadService
@@ -67,6 +73,10 @@ internal abstract class UploadService {
             uploaded[hash] = url
             BinaryCache["uploaded_packs"] = uploaded
             return url
+        }
+
+        fun cleanup(retain: Set<Sha1Hex>) {
+            if (available()) service.cleanup(retain)
         }
     }
 }

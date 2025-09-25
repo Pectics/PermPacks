@@ -6,7 +6,6 @@ import me.pectics.paper.plugin.permpacks.data.PackItem
 import me.pectics.paper.plugin.permpacks.data.UrlPackItem
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.pack.Packer
-import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.util.logger
 import me.pectics.paper.plugin.permpacks.util.sha1
@@ -62,7 +61,6 @@ internal class Options private constructor(private val plugin: PermPacks) {
     fun loadPacks() {
         _packs.clear()
         UploadService.clearCache()
-        FileMetaRepository.clear()
         uploadServiceWarningShown = false
 
         packsWrapper.config.getKeys(false)
@@ -143,7 +141,8 @@ internal class Options private constructor(private val plugin: PermPacks) {
     }
 
     private fun createUrlItem(urlString: String, hash: Sha1Hex?, packId: String, index: Int): PackItem? {
-        return runCatching { URI(urlString).toURL() }
+        return urlString
+            .runCatching(::URI)
             .onFailure {
                 log.warning("Items[$index] in pack \"$packId\" has an invalid url, skipped.")
             }
@@ -210,6 +209,15 @@ internal class Options private constructor(private val plugin: PermPacks) {
                 val service = fileUploadService?.lowercase() ?: return null
                 it.section("file_upload.$service")?.getValues(false)
             }
+
+        val uploadCleanupEnabled: Boolean
+            get() = instance.configWrapper
+                .boolean("file_upload.cleanup", false)
+
+        fun retainHashes(): Set<Sha1Hex> = instance._packs
+            .flatMap { pack -> pack.items }
+            .mapNotNull { item -> (item as? FilePackItem)?.hash }
+            .toSet()
 
         fun initialize(plugin: PermPacks) {
             instance = Options(plugin)

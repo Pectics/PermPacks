@@ -8,6 +8,7 @@ import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.UploadServiceContext
 import me.pectics.paper.plugin.permpacks.upload.selfhost.SelfHostService
+import me.pectics.paper.plugin.permpacks.upload.s3.S3Service
 import me.pectics.paper.plugin.permpacks.util.warning
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -26,7 +27,7 @@ class PermPacks : JavaPlugin() {
         runCatching {
             when (service) {
                 in SelfHostService.names -> UploadService.initialize(SelfHostService, context)
-                // TODO amazon_s3
+                in S3Service.names -> UploadService.initialize(S3Service, context)
                 else -> logger.warning("Unknown file upload service: $service")
             }
         }.onFailure {
@@ -45,6 +46,12 @@ class PermPacks : JavaPlugin() {
 
         // Load packs
         Options.loadPacks()
+
+        // Cleanup remote uploads if enabled
+        if (Options.fileUploadEnabled && Options.uploadCleanupEnabled) {
+            val retain = Options.retainHashes()
+            UploadService.cleanup(retain)
+        }
 
         // Hook ProtocolLib if available
         server.pluginManager.getPlugin("ProtocolLib")
