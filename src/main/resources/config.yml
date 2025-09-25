@@ -4,4 +4,13 @@ file_upload:
   enabled: false
   service: self_host # amazon_s3, self_host
   self_host:
-
+    host: 127.0.0.1
+    port: 7077
+  amazon_s3:
+    endpoint: s3.amazonaws.com
+    region: cn-north-1
+    bucket: your-bucket-name
+    access_key_id: ""
+    secret_access_key: ""
+    path_style_access: false
+    chunked_encoding: true
