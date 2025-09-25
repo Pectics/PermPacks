@@ -1,5 +1,6 @@
 package me.pectics.paper.plugin.permpacks.upload.s3
 
+import me.pectics.paper.plugin.permpacks.data.FilePackItem
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.UploadServiceContext
 import me.pectics.paper.plugin.permpacks.util.removePrefixIgnoreCase
@@ -15,6 +16,7 @@ import me.pectics.paper.plugin.permpacks.util.validate
 import java.io.File
 import java.net.URI
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
+import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 
@@ -98,6 +100,11 @@ internal object S3Service : UploadService() {
 
         val url = urlFormat.format(hash)
         return URI.create(url)
+    }
+
+    override fun validate(item: FilePackItem, cached: SerializableURI): Boolean {
+        val expectedUrl = urlFormat.format(item.hash.value)
+        return cached.toString() == expectedUrl
     }
 
     override fun cleanup(retain: Set<Sha1Hex>) {

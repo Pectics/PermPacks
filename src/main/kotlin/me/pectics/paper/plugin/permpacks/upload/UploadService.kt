@@ -33,13 +33,12 @@ internal abstract class UploadService {
     /**
      * Validate the cached URI for the given item.
      */
-    open fun validate(item: FilePackItem, cached: SerializableURI): Boolean = true
+    abstract fun validate(item: FilePackItem, cached: SerializableURI): Boolean
 
     /**
      * Cleanup remote storage based on a set of allowed hashes.
-     * Default no-op.
      */
-    open fun cleanup(retain: Set<Sha1Hex>) {}
+    abstract fun cleanup(retain: Set<Sha1Hex>)
 
     companion object {
 
