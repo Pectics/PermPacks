@@ -81,18 +81,20 @@ internal object S3Service : UploadService() {
 
     override fun upload(file: File): URI {
         file.validate()
-
         val hash = file.sha1().value
-        val key = "$directory$hash"
-
         val putRequest = PutObjectRequest.builder()
             .bucket(bucket)
-            .key(key)
+            .key("$directory$hash")
             .contentLength(file.length())
             .acl(ObjectCannedACL.PUBLIC_READ)
             .build()
 
-        client.putObject(putRequest, RequestBody.fromFile(file))
+        val response = client.putObject(
+            putRequest,
+            RequestBody.fromFile(file)
+        ).sdkHttpResponse()
+        if (!response.isSuccessful)
+            throw IllegalStateException("Failed to upload file to S3: $response")
 
         val url = urlFormat.format(hash)
         return URI.create(url)
