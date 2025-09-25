@@ -9,7 +9,7 @@ import me.pectics.paper.plugin.permpacks.pack.Packer
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.util.logger
 import me.pectics.paper.plugin.permpacks.util.sha1
-import me.pectics.paper.plugin.permpacks.util.validate
+import me.pectics.paper.plugin.permpacks.util.validated
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
@@ -140,15 +140,14 @@ internal class Options private constructor(private val plugin: PermPacks) {
         }
     }
 
-    private fun createUrlItem(urlString: String, hash: Sha1Hex?, packId: String, index: Int): PackItem? {
-        return urlString
+    private fun createUrlItem(urlString: String, hash: Sha1Hex?, packId: String, index: Int): UrlPackItem? =
+        urlString
             .runCatching(::URI)
-            .onFailure {
+            .getOrElse {
                 log.warning("Items[$index] in pack \"$packId\" has an invalid url, skipped.")
+                return null
             }
-            .getOrNull()
-            ?.let { UrlPackItem(it, hash) }
-    }
+            .let { UrlPackItem(it, hash) }
 
     private fun createFileItem(path: String, hash: Sha1Hex?, packId: String, index: Int): PackItem? {
         if (!UploadService.available()) {
@@ -157,10 +156,7 @@ internal class Options private constructor(private val plugin: PermPacks) {
         }
 
         val file = File(path)
-            .runCatching {
-                validate()
-                this
-            }
+            .runCatching(File::validated)
             .getOrElse {
                 log.warning("Items[$index] in pack \"$packId\" refers to an invalid file, skipped.")
                 return null
@@ -177,10 +173,8 @@ internal class Options private constructor(private val plugin: PermPacks) {
 
     private fun logUploadServiceUnavailable(packId: String) {
         if (!uploadServiceWarningShown) {
-            log.warning(
-                "Pack \"$packId\" requires file upload service, but it's not configured properly, " +
-                    "all items with local files will be skipped."
-            )
+            log.warning("Pack \"$packId\" requires file upload service, but it's not configured properly, " +
+                    "all items with local files will be skipped.")
             uploadServiceWarningShown = true
         }
     }
@@ -215,7 +209,7 @@ internal class Options private constructor(private val plugin: PermPacks) {
                 .boolean("file_upload.cleanup", false)
 
         fun retainHashes(): Set<Sha1Hex> = instance._packs
-            .flatMap { pack -> pack.items }
+            .flatMap(Pack::items)
             .mapNotNull { item -> (item as? FilePackItem)?.hash }
             .toSet()
 
