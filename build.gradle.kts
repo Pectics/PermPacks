@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     kotlin("jvm") version "2.2.10"
     kotlin("plugin.serialization") version "2.2.10"
@@ -15,6 +17,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
 
     implementation("dev.jorel:commandapi-bukkit-core:10.1.2")
+    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:10.1.2")
     implementation("dev.jorel:commandapi-bukkit-kotlin:10.1.2")
 
     implementation("software.amazon.awssdk:s3:2.33.11")
@@ -34,6 +37,10 @@ tasks {
 val targetJavaVersion = 21
 kotlin {
     jvmToolchain(targetJavaVersion)
+}
+
+tasks.withType<ShadowJar> {
+    relocate("dev.jorel.commandapi", "me.pectics.paper.plugin.permpacks.commandapi")
 }
 
 tasks.build {
