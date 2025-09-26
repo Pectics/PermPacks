@@ -2,88 +2,82 @@ package me.pectics.paper.plugin.permpacks.upload
 
 import me.pectics.paper.plugin.permpacks.BinaryCache
 import me.pectics.paper.plugin.permpacks.data.FilePackItem
-import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import java.io.File
 import java.net.URI
-import java.util.concurrent.ConcurrentHashMap
 
 internal interface UploadService {
 
     /**
-     * Names to identify the service.
+     * 文件上传服务的名称列表，可用于配置文件中指定服务
      */
     val names: List<String>
 
     /**
-     * Launch the service with the given context.
+     * 启动文件上传服务
+     *
+     * @param context 提供服务所需配置的上下文
+     * @throws Exception 启动过程中发生错误
      */
     fun launch(context: UploadServiceContext)
 
     /**
-     * Shutdown the service.
+     * 停止文件上传服务，释放相关资源
      */
     fun shutdown()
 
     /**
-     * Upload the given file and return its URI.
+     * 上传文件并返回其可访问的URI
+     *
+     * @param file 要上传的文件
+     * @return 文件的可访问URI
      */
     fun upload(file: File): URI
 
     /**
-     * Validate the cached URI for the given item.
+     * 清理过期的文件，保留指定部分
+     *
+     * @param retain 要保留的文件项
      */
-    fun validate(item: FilePackItem, cached: URI): Boolean
-
-    /**
-     * Cleanup remote storage based on a set of allowed hashes.
-     */
-    fun cleanup(retain: Set<Sha1Hex>)
+    fun cleanup(retain: Iterable<FilePackItem>)
 
     companion object {
 
         private lateinit var service: UploadService
-        private val uploaded = ConcurrentHashMap<Sha1Hex, URI>()
-        private val locks = ConcurrentHashMap<Sha1Hex, Any>()
 
+        /**
+         * 检查上传服务是否已初始化
+         */
         fun available() = ::service.isInitialized
 
+        /**
+         * 初始化上传服务
+         *
+         * @param service 要使用的上传服务实例
+         * @param context 提供服务所需配置的上下文
+         */
         fun initialize(service: UploadService, context: UploadServiceContext) {
-            BinaryCache.get<Map<Sha1Hex, URI>>("uploaded_packs")
-                ?.apply(uploaded::putAll)
             service.launch(context)
             this.service = service
         }
 
-        fun shutdown() {
-            if (available()) service.shutdown()
-            uploaded.clear()
-        }
+        /**
+         * 停止上传服务
+         */
+        fun shutdown() = if (available()) service.shutdown() else Unit
 
-        fun clearCache() {
-            uploaded.clear()
-            BinaryCache.remove("uploaded_packs")
-        }
+        /**
+         * 获取缓存的文件项的可访问URL
+         *
+         * @param item 文件项
+         * @return 文件的可访问URI，若未缓存则为null
+         */
+        fun urlOf(item: FilePackItem): URI? = BinaryCache[item.hash.value]
 
-        fun urlOf(item: FilePackItem): URI {
-            val hash = item.hash
-            val cached = uploaded[hash]
-            if (cached != null && service.validate(item, cached))
-                return cached
-
-            val lock = locks.computeIfAbsent(hash) { Any() }
-            synchronized(lock) {
-                val secondCheck = uploaded[hash]
-                if (secondCheck != null && service.validate(item, secondCheck))
-                    return secondCheck
-                val url = service.upload(item.file)
-                uploaded[hash] = url
-                BinaryCache["uploaded_packs"] = uploaded
-                return url
-            }
-        }
-
-        fun cleanup(retain: Set<Sha1Hex>) {
-            if (available()) service.cleanup(retain)
-        }
+        /**
+         * 清理过期的文件，保留指定部分
+         *
+         * @param retain 要保留的文件项
+         */
+        fun cleanup(retain: Iterable<FilePackItem>) = if (available()) service.cleanup(retain) else Unit
     }
 }
