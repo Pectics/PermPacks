@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "me.pectics.paper.plugin"
-version = "0.1.1"
+version = "0.2"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -25,18 +25,16 @@ dependencies {
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
 }
 
-tasks {
-    runServer {
-        // Configure the Minecraft version for our task.
-        // This is the only required configuration besides applying the plugin.
-        // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21")
-    }
-}
-
 val targetJavaVersion = 21
 kotlin {
     jvmToolchain(targetJavaVersion)
+}
+
+tasks.runServer {
+    // Configure the Minecraft version for our task.
+    // This is the only required configuration besides applying the plugin.
+    // Your plugin's jar (or shadowJar if present) will be used automatically.
+    minecraftVersion("1.21")
 }
 
 tasks.withType<ShadowJar> {
