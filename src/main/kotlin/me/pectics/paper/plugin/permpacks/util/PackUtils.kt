@@ -27,7 +27,7 @@ fun Iterable<Pack>.toRequest(): ResourcePackRequest {
 
 private fun PackItem.toResourcePackInfo(): ResourcePackInfo = when (this) {
     is UrlPackItem -> ResourcePackInfo.resourcePackInfo()
-        .uri(url)
+        .uri(url.value)
         .apply { hash?.value?.let(::hash) }
         .build()
 
@@ -35,7 +35,7 @@ private fun PackItem.toResourcePackInfo(): ResourcePackInfo = when (this) {
         val url = UploadService.urlOf(this)
             ?: throw IllegalStateException("FilePackItem must be uploaded before converting to ResourcePackInfo.")
         ResourcePackInfo.resourcePackInfo()
-            .uri(url)
+            .uri(url.value)
             .hash(hash.value)
             .build()
     }

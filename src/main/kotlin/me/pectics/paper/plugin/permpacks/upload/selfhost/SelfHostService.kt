@@ -4,14 +4,14 @@ import com.sun.net.httpserver.HttpServer
 import me.pectics.paper.plugin.permpacks.data.FilePackItem
 import me.pectics.paper.plugin.permpacks.domain.value.Host
 import me.pectics.paper.plugin.permpacks.domain.value.Port
+import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.upload.FileMetaRepository
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.UploadServiceContext
-import me.pectics.paper.plugin.permpacks.util.sha1
+import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import me.pectics.paper.plugin.permpacks.util.validate
 import java.io.File
 import java.net.InetSocketAddress
-import java.net.URI
 
 internal object SelfHostService : UploadService {
 
@@ -53,8 +53,9 @@ internal object SelfHostService : UploadService {
         val hash = file.sha1()
         if (hash !in FileMetaRepository)
             FileMetaRepository.push(file)
-        val url = urlFormat.format(FileMetaRepository[hash]!!.repoFile.name)
-        return URI.create(url)
+        return urlFormat
+            .format(FileMetaRepository[hash]!!.repoFile.name)
+            .let(::SerializableURI)
     }
 
     override fun cleanup(retain: Iterable<FilePackItem>) {

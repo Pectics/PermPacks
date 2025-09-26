@@ -1,8 +1,10 @@
 package me.pectics.paper.plugin.permpacks.upload.s3
 
 import me.pectics.paper.plugin.permpacks.data.FilePackItem
+import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.UploadServiceContext
+import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import me.pectics.paper.plugin.permpacks.util.removePrefixIgnoreCase
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
@@ -11,10 +13,8 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.core.sync.RequestBody
-import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validate
 import java.io.File
-import java.net.URI
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 
@@ -33,8 +33,8 @@ internal object S3Service : UploadService {
     override fun launch(context: UploadServiceContext) {
         val endpoint = context.required("endpoint").to<String>()
             .removePrefixIgnoreCase("http://")
-            .removePrefixIgnoreCase("https://")
-            .let(::URI)
+            .let("https://"::plus)
+            .let(::SerializableURI)
         val region = context.required("region").to<String>()
             .let(Region::of)
 
@@ -47,7 +47,7 @@ internal object S3Service : UploadService {
 
         // S3 client build
         _client = S3Client.builder()
-            .endpointOverride(endpoint)
+            .endpointOverride(endpoint.value)
             .region(region)
             .credentialsProvider(StaticCredentialsProvider.create(credentials))
             .serviceConfiguration {
@@ -84,7 +84,7 @@ internal object S3Service : UploadService {
         val hash = file.sha1().value
         val putRequest = PutObjectRequest.builder()
             .bucket(bucket)
-            .key("$directory$hash")
+            .key("$directory${hash.value}")
             .contentLength(file.length())
             .acl(ObjectCannedACL.PUBLIC_READ)
             .build()
@@ -96,8 +96,9 @@ internal object S3Service : UploadService {
         if (!response.isSuccessful)
             throw IllegalStateException("Failed to upload file to S3: $response")
 
-        val url = urlFormat.format(hash)
-        return URI.create(url)
+        return urlFormat
+            .format(hash.value)
+            .let(::SerializableURI)
     }
 
     override fun cleanup(retain: Iterable<FilePackItem>) {

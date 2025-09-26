@@ -1,5 +1,6 @@
 package me.pectics.paper.plugin.permpacks
 
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.pectics.paper.plugin.permpacks.util.logger
 import java.io.DataInputStream
@@ -144,8 +145,10 @@ internal class BinaryCache private constructor(plugin: PermPacks) {
          */
         inline operator fun <reified T> set(key: String, value: T?) {
             // 若值为 null 则尝试移除键，若原本就不存在则不写入
-            if (value == null && instance.map.remove(key) == null)
-                return
+            if (value == null) {
+                if (instance.map.remove(key) == null) return
+                instance.scheduleWrite()
+            }
             // 非 null 则写入
             instance.map[key] = Json.encodeToString(value)
             instance.scheduleWrite()

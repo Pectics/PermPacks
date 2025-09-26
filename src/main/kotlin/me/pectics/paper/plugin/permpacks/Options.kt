@@ -7,6 +7,7 @@ import me.pectics.paper.plugin.permpacks.data.UrlPackItem
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.pack.Packer
 import me.pectics.paper.plugin.permpacks.upload.UploadService
+import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import me.pectics.paper.plugin.permpacks.util.logger
 import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validated
@@ -14,7 +15,6 @@ import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
-import java.net.URI
 
 /**
  * 配置管理器
@@ -147,7 +147,7 @@ internal class Options private constructor(private val plugin: PermPacks) {
 
     private fun createUrlItem(urlString: String, hash: Sha1Hex?, packId: String, index: Int): UrlPackItem? =
         urlString
-            .runCatching(::URI)
+            .runCatching(::SerializableURI)
             .getOrElse {
                 log.warning("Items[$index] in pack \"$packId\" has an invalid url, skipped.")
                 return null

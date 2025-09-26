@@ -2,8 +2,10 @@ package me.pectics.paper.plugin.permpacks.upload
 
 import me.pectics.paper.plugin.permpacks.BinaryCache
 import me.pectics.paper.plugin.permpacks.data.FilePackItem
+import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
+import me.pectics.paper.plugin.permpacks.util.SerializableURI
+import me.pectics.paper.plugin.permpacks.util.sha1
 import java.io.File
-import java.net.URI
 
 internal interface UploadService {
 
@@ -71,7 +73,7 @@ internal interface UploadService {
          * @param item 文件项
          * @return 文件的可访问URI，若未缓存则为null
          */
-        fun urlOf(item: FilePackItem): URI? = BinaryCache[item.hash.value]
+        fun urlOf(item: FilePackItem): SerializableURI? = BinaryCache[item.hash.value]
 
         /**
          * 清理过期的文件，保留指定部分
