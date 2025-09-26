@@ -2,7 +2,7 @@
 <p style="text-align: center"><b>PermPacks</b></p>
 
 <p style="text-align: center">
-  <a href="README-en.md">English</a> | 
+  <span>English</span> | 
   <a href="README.md">中文</a>
 </p>
 

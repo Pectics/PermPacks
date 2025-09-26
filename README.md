@@ -3,7 +3,7 @@
 
 <p style="text-align: center">
   <a href="README-en.md">English</a> | 
-  <a href="README.md">中文</a>
+  <span>中文</span>
 </p>
 
 基于权限为玩家自动下发「多层资源包栈」的 Paper 插件。支持远程 URL 与本地文件两类资源来源，内置自托管与 Amazon S3 上传分发，实现即开即用的稳定下发；可选拦截外部资源包，保障栈一致性。
