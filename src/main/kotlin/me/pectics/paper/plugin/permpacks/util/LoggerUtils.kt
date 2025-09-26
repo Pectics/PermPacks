@@ -8,7 +8,6 @@ internal inline fun <reified T> logger() = PermPacksLogger.of(T::class.let { it.
 internal fun logger(who: String) = PermPacksLogger.of(who)
 
 internal fun Logger.warning(msg: String?, thrown: Throwable) = log(Level.WARNING, msg, thrown)
-internal fun Logger.error(msg: String?, thrown: Throwable) = log(Level.SEVERE, msg, thrown)
 
 internal class PermPacksLogger private constructor(who: String?) : Logger(PermPacks::class.simpleName, null) {
 
@@ -24,16 +23,8 @@ internal class PermPacksLogger private constructor(who: String?) : Logger(PermPa
         super.warning(prefix + msg)
     }
 
-    fun warning(msg: String?, thrown: Throwable) {
-        super.log(Level.WARNING, prefix + msg, thrown)
-    }
-
     override fun severe(msg: String?) {
         super.severe(prefix + msg)
-    }
-
-    fun error(msg: String?, thrown: Throwable) {
-        super.log(Level.SEVERE, prefix + msg, thrown)
     }
 
     override fun fine(msg: String?) {
@@ -50,6 +41,14 @@ internal class PermPacksLogger private constructor(who: String?) : Logger(PermPa
 
     override fun config(msg: String?) {
         super.config(prefix + msg)
+    }
+
+    fun warning(msg: String?, thrown: Throwable) {
+        super.log(Level.WARNING, prefix + msg, thrown)
+    }
+
+    fun error(msg: String?, thrown: Throwable) {
+        super.log(Level.SEVERE, prefix + msg, thrown)
     }
 
     companion object {
