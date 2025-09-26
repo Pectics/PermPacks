@@ -16,8 +16,14 @@ import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.net.URI
 
+/**
+ * 配置管理器
+ */
 internal class Options private constructor(private val plugin: PermPacks) {
 
+    /**
+     * 配置文件包装器
+     */
     private inner class FileConfigWrapper(val path: String) {
 
         val file = File(plugin.dataFolder, path)
@@ -58,9 +64,8 @@ internal class Options private constructor(private val plugin: PermPacks) {
         wrappers.forEach(FileConfigWrapper::load)
     }
 
-    fun loadPacks() {
+    fun readPacks() {
         _packs.clear()
-        UploadService.clearCache()
         uploadServiceWarningShown = false
 
         packsWrapper.config.getKeys(false)
@@ -187,41 +192,67 @@ internal class Options private constructor(private val plugin: PermPacks) {
 
         private lateinit var instance: Options
 
+        /**
+         * 已读取的资源包集合
+         */
         val packs: Set<Pack>
             get() = instance._packs
+
+        /**
+         * 是否阻止非本插件管理的资源包
+         */
         val blockOtherPacks: Boolean
             get() = instance.configWrapper
                 .boolean("block_other_packs", false)
+
+        /**
+         * 是否启用文件上传服务
+         */
         val fileUploadEnabled: Boolean
             get() = instance.configWrapper
                 .boolean("file_upload.enabled", false)
+
+        /**
+         * 文件上传服务名称
+         */
         val fileUploadService: String?
             get() = instance.configWrapper
                 .string("file_upload.service")
+
+        /**
+         * 文件上传服务原始上下文
+         */
         val fileUploadContext: Map<String, Any>?
             get() = instance.configWrapper.let {
                 val service = fileUploadService?.lowercase() ?: return null
                 it.section("file_upload.$service")?.getValues(false)
             }
 
-        val uploadCleanupEnabled: Boolean
+        /**
+         * 是否启用上传文件的定期清理
+         */
+        val fileUploadCleanup: Boolean
             get() = instance.configWrapper
                 .boolean("file_upload.cleanup", false)
 
-        fun retainHashes(): Set<Sha1Hex> = instance._packs
-            .flatMap(Pack::items)
-            .mapNotNull { item -> (item as? FilePackItem)?.hash }
-            .toSet()
-
+        /**
+         * 初始化配置管理器
+         */
         fun initialize(plugin: PermPacks) {
             instance = Options(plugin)
         }
 
-        fun loadPacks() = instance.loadPacks()
+        /**
+         * 重新读取资源包配置
+         */
+        fun readPacks() = instance.readPacks()
 
+        /**
+         * 重新加载所有配置文件
+         */
         fun reload() {
             instance.wrappers.forEach(FileConfigWrapper::reload)
-            instance.loadPacks()
+            instance.readPacks()
         }
     }
 }
