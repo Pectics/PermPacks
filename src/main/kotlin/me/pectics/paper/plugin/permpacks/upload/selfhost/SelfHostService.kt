@@ -33,7 +33,7 @@ internal object SelfHostService : UploadService {
         port = context.required("port").to<Int>()
             .let(Port::of)
             .getOrThrow()
-        urlFormat = "http://$host:$port/%s"
+        urlFormat = "http://${host.value}:${port.value}/%s"
         _server = HttpServer.create()
         server.apply {
             createContext("/", SelfHostHandler)
@@ -48,9 +48,8 @@ internal object SelfHostService : UploadService {
         _server = null
     }
 
-    override fun upload(file: File): URI {
+    override fun upload(file: File, hash: Sha1Hex): SerializableURI {
         file.validate()
-        val hash = file.sha1()
         if (hash !in FileMetaRepository)
             FileMetaRepository.push(file)
         return urlFormat

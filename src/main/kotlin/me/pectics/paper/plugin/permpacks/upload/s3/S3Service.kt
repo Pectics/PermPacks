@@ -69,8 +69,8 @@ internal object S3Service : UploadService {
             ?: ""
 
         urlFormat = when (pathStyleAccess) {
-            true -> "https://${endpoint.host}/$bucket/$directory%s"
-            false -> "https://$bucket.${endpoint.host}/$directory%s"
+            true -> "https://${endpoint.value.host}/$bucket/$directory%s"
+            false -> "https://$bucket.${endpoint.value.host}/$directory%s"
         }
     }
 
@@ -79,9 +79,8 @@ internal object S3Service : UploadService {
         _client = null
     }
 
-    override fun upload(file: File): URI {
+    override fun upload(file: File, hash: Sha1Hex): SerializableURI {
         file.validate()
-        val hash = file.sha1().value
         val putRequest = PutObjectRequest.builder()
             .bucket(bucket)
             .key("$directory${hash.value}")

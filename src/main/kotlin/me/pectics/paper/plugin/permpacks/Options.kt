@@ -166,6 +166,7 @@ internal class Options private constructor(private val plugin: PermPacks) {
                 log.warning("Items[$index] in pack \"$packId\" refers to an invalid file, skipped.")
                 return null
             }
+            .apply(UploadService::upload)
 
         val computedHash = file.sha1()
         if (hash != null && hash != computedHash) {

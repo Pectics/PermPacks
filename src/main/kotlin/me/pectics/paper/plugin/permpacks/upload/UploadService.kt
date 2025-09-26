@@ -33,7 +33,7 @@ internal interface UploadService {
      * @param file 要上传的文件
      * @return 文件的可访问URI
      */
-    fun upload(file: File): URI
+    fun upload(file: File, hash: Sha1Hex = file.sha1()): SerializableURI
 
     /**
      * 清理过期的文件，保留指定部分
@@ -66,6 +66,17 @@ internal interface UploadService {
          * 停止上传服务
          */
         fun shutdown() = if (available()) service.shutdown() else Unit
+
+        /**
+         * 上传文件并返回其可访问的URI
+         *
+         * @param file 要上传的文件
+         * @return 文件的可访问URI
+         */
+        fun upload(file: File, hash: Sha1Hex = file.sha1()): SerializableURI = when (available()) {
+            true -> service.upload(file).apply { BinaryCache[hash.value] = this } // cache the URL
+            false -> throw IllegalStateException("UploadService is not initialized.")
+        }
 
         /**
          * 获取缓存的文件项的可访问URL
