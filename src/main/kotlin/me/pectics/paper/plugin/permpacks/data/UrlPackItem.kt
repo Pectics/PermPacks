@@ -5,5 +5,5 @@ import java.net.URI
 
 data class UrlPackItem(
     val url: URI,
-    val hash: Sha1Hex?,
+    override val hash: Sha1Hex?,
 ) : PackItem()
