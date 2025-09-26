@@ -53,7 +53,7 @@ internal object FileMetaRepository {
     }
 
     fun cleanup(retain: Set<Sha1Hex>) {
-        val retainStrings = retain.map { it.value }.toSet()
+        val retainStrings = retain.map(Sha1Hex::value).toSet()
 
         // delete files on disk not retained
         repo.listFiles()

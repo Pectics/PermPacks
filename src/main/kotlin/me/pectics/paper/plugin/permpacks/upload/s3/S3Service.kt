@@ -15,7 +15,6 @@ import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validate
 import java.io.File
 import java.net.URI
-import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 
@@ -101,14 +100,9 @@ internal object S3Service : UploadService {
         return URI.create(url)
     }
 
-    override fun validate(item: FilePackItem, cached: URI): Boolean {
-        val expectedUrl = urlFormat.format(item.hash.value)
-        return cached.toString() == expectedUrl
-    }
-
-    override fun cleanup(retain: Set<Sha1Hex>) {
+    override fun cleanup(retain: Iterable<FilePackItem>) {
         // Build a set of string hashes for efficient membership tests
-        val retainStrings = retain.map { it.value }.toSet()
+        val retainStrings = retain.mapTo(mutableSetOf()) { it.hash.value }
 
         var continuationToken: String? = null
         do {

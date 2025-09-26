@@ -9,7 +9,6 @@ import me.pectics.paper.plugin.permpacks.upload.UploadService
 import me.pectics.paper.plugin.permpacks.upload.UploadServiceContext
 import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validate
-import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import java.io.File
 import java.net.InetSocketAddress
 import java.net.URI
@@ -58,11 +57,7 @@ internal object SelfHostService : UploadService {
         return URI.create(url)
     }
 
-    override fun validate(item: FilePackItem, cached: URI): Boolean {
-        return item.hash in FileMetaRepository
-    }
-
-    override fun cleanup(retain: Set<Sha1Hex>) {
-        FileMetaRepository.cleanup(retain)
+    override fun cleanup(retain: Iterable<FilePackItem>) {
+        FileMetaRepository.cleanup(retain.map(FilePackItem::hash).toSet())
     }
 }
