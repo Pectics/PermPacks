@@ -15,7 +15,7 @@ import java.net.InetSocketAddress
 
 internal object SelfHostService : UploadService {
 
-    override val names = listOf("selfhost", "self-host", "self_host")
+    override val names = listOf("self_host", "self-host", "selfhost")
 
     private var _server: HttpServer? = null
     private val server get() = _server ?: throw IllegalStateException("HttpServer of SelfHostService is not launched.")

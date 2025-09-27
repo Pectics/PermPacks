@@ -7,10 +7,13 @@ import me.pectics.paper.plugin.permpacks.data.UrlPackItem
 import me.pectics.paper.plugin.permpacks.domain.value.Sha1Hex
 import me.pectics.paper.plugin.permpacks.pack.Packer
 import me.pectics.paper.plugin.permpacks.upload.UploadService
+import me.pectics.paper.plugin.permpacks.upload.s3.S3Service
+import me.pectics.paper.plugin.permpacks.upload.selfhost.SelfHostService
 import me.pectics.paper.plugin.permpacks.util.SerializableURI
 import me.pectics.paper.plugin.permpacks.util.logger
 import me.pectics.paper.plugin.permpacks.util.sha1
 import me.pectics.paper.plugin.permpacks.util.validated
+import net.kyori.adventure.util.Services.service
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
@@ -224,9 +227,15 @@ internal class Options private constructor(private val plugin: PermPacks) {
          * 文件上传服务原始上下文
          */
         val fileUploadContext: Map<String, Any>?
-            get() = instance.configWrapper.let {
+            get() = instance.configWrapper.let { cfg ->
+                // 指定的服务名称
                 val service = fileUploadService?.lowercase() ?: return null
-                it.section("file_upload.$service")?.getValues(false)
+                // 查找对应服务的配置
+                listOf(SelfHostService, S3Service)
+                    .map(UploadService::names)
+                    .find { service in it }
+                    ?.firstNotNullOf(cfg::section)
+                    ?.getValues(false)
             }
 
         /**
